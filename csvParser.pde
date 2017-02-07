@@ -6,6 +6,9 @@ class csvParser{
   Table table;
   int tablelength;
   int x;
+
+  BirdPoint[] BPS;
+
   
   csvParser(String filename){
     
@@ -15,7 +18,7 @@ class csvParser{
     this.table = table;
     this.tablelength = tablelength;
     this.x = x;
-    
+    this.BPS = BPS;
   }
   
   void setTRK_points(){
@@ -23,34 +26,45 @@ class csvParser{
     //loading csv data
     this.table = loadTable(filename, "header");
     tablelength = table.getRowCount();
-    //println(table.getRowCount() + " total rows in table");
-    
+
+    //Birds by GPS coords
     PVector[] BirdGPS = new PVector[tablelength];
-    PVector[] BirdMAP = new PVector[tablelength];
+    //Birds by screen coords
+    PVector[] BirdScreen = new PVector[tablelength];
+    
+    BirdPoint[] BPS = new BirdPoint[tablelength];
     
     this.x = 0;
     for (TableRow row : table.rows()) {
+      
         String id = row.getString("ID");
         String date = row.getString("Date");
         String time = row.getString("Time");
+        
         float lat = row.getFloat("Latitude");
         float lon = row.getFloat("Longitude");
-        float alt = row.getFloat("Altitude");
+        float north = row.getFloat("Northing");
+        float east = row.getFloat("Easting");
+        
+        float alt = row.getFloat("Altitude");  
         float speed = row.getFloat("Speed");
         float course = row.getFloat("Course");
+        float distance = row.getFloat("Distance");
         
+           
         BirdGPS[x] = new PVector(lat,lon);
         activepoint = mercatorMap.getScreenLocation(new PVector(BirdGPS[x].x, BirdGPS[x].y));
-      
-        //println(date + " " + activepoint);
-        BirdMAP[x] = new PVector(activepoint.x, activepoint.y);
-        //println("****************************************************");
-        //println(x + "  " + BirdMAP[x]);
+
+        BirdScreen[x] = new PVector(activepoint.x, activepoint.y);
+        this.BirdTrack = BirdScreen;
         
-        this.BirdTrack = BirdMAP;
+        //println(" X=", x, " ActiveX=", activepoint.x, " ActiveY=", activepoint.y, " ID=", id, " date=", date, " time=", time, " lat=", lat, " lon=", lon," north=", north, " east=", east, " alt=", alt, " speed=", speed, "course=", course, "distance=", distance);
         
-        
-        
+        BPS[x] = new BirdPoint(activepoint.x, activepoint.y, id, date, time, lat, lon, north, east, alt, speed, course, distance);
+        this.BPS = BPS;
+     
+     
+     
         x++;
       }
     
@@ -62,5 +76,8 @@ class csvParser{
   PVector[] getBirdTrack(){
       return this.BirdTrack;
   }
-    
+     BirdPoint[] getBirdPoints(){
+      return this.BPS;
+  }
+  
 }
